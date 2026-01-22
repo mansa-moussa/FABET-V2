@@ -11,17 +11,17 @@ st.set_page_config(page_title="FABET - EasyOCR", layout="wide")
 
 # --- CHARGEMENT DES MODÈLES (Caching pour la vitesse) ---
 @st.cache_resource
-@st.cache_resource
 def load_models():
-    # IMPORTANT : gpu=False est obligatoire pour le déploiement Cloud
-    reader = easyocr.Reader(['fr'], gpu=False) 
+    # Chargement d'EasyOCR (mode CPU pour le cloud)
+    reader = easyocr.Reader(['fr'], gpu=False)
     
-    # Chargement auto de SpaCy (si non présent)
+    # Chargement de spaCy (le modèle sera déjà installé via requirements.txt)
     try:
         nlp = spacy.load("fr_core_news_sm")
     except OSError:
-        import subprocess
-        subprocess.run(["python", "-m", "spacy", "download", "fr_core_news_sm"])
+        # Solution de secours au cas où
+        import os
+        os.system("python -m spacy download fr_core_news_sm")
         nlp = spacy.load("fr_core_news_sm")
         
     return reader, nlp
@@ -147,4 +147,5 @@ if uploaded_file:
             st.success(f"Document classifié comme : **{category}**")
 
     # Téléchargement
+
     st.download_button("Télécharger la transcription", final_text, file_name="fabet_ocr.txt")
